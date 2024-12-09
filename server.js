@@ -7,6 +7,8 @@ import connectDB from "./config/mongodb.js";
 import productRoutes from "./routes/productRoutes.js";
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 app.use("/api",productRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

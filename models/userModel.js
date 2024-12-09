@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema({
         birthdate: Date,
     },
     addresses: [addressSchema],
+    cartData: {
+        type: Map,
+        of: new mongoose.Schema({ // This allows for dynamic keys
+            size: { type: Map, of: Number }
+        })
+    }
 });
 
 const User = mongoose.model('User', userSchema);

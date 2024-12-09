@@ -1,54 +1,16 @@
-import mongoose from 'mongoose';
-const orderItemSchema = new mongoose.Schema({
-    product: {
-        productId: mongoose.Schema.Types.ObjectId,
-        productName: String,
-        productPrice: Number,
-    },
-    variant: {
-        size: String,
-        color: String,
-    },
-    quantity: Number,
-    subtotal: Number,
-});
+import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-    user: {
-        userId: mongoose.Schema.Types.ObjectId,
-        userEmail: String,
-        username: String,
-    },
-    items: [orderItemSchema],
-    shipping: {
-        method: String,
-        address: {
-            street: String,
-            district: String,
-            province: String,
-            postcode: String,
-        },
-        tracking: {
-            number: String,
-            carrier: String,
-            status: String,
-        },
-    },
-    payment: {
-        method: String,
-        status: String, // "pending", "paid", "failed"
-        total: Number,
-        currency: String,
-        transactionId: String,
-    },
-    status: {
-        current: String, // "created", "processing", "shipped", "delivered", "cancelled"
-        history: [{
-            state: String,
-            timestamp: Date,
-        }],
-    },
+    userId: { type: String, required: true },
+    items: { type: Array, required: true },
+    amount: { type: Number, required: true },
+    address: { type: Object, required: true },
+    status: { type: String, required: true, default: "Order Placed" },
+    paymentMethod: { type: String, required: true },
+    payment: { type: Boolean, required: true, default: false },
+    date: { type: Number, required: true }
 });
 
-const Order = mongoose.model('Order', orderSchema);
-export default Order;
+const orderModel = mongoose.models.order || mongoose.model("order", orderSchema);
+
+export default orderModel;
