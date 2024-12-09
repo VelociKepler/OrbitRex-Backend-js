@@ -1,28 +1,42 @@
+import Cart from "../models/cartModel.js";
 import userModel from "../models/userModel.js";
+import productModel from "../models/productModel.js";
 
 // Add products to user cart
 const addToCart = async (req, res) => {
     try {
-        const { userId, itemId, size } = req.body;
+        const { userId, productId, color } = req.body; // Adjusted from itemId to productId
 
-        // Find user by ID
-        const userData = await userModel.findById(userId);
-        if (!userData) {
+        // Validate user
+        const userExists = await userModel.exists({ _id: userId });
+        if (!userExists) {
             return res.status(404).json({ success: false, message: "User not found." });
         }
 
-        // Initialize cart data if not present
-        let cartData = userData.cartData || new Map();
-
-        if (!cartData[itemId]) {
-            cartData[itemId] = { };
+        // Validate product
+        const productExists = await productModel.exists({ _id: productId });
+        if (!productExists) {
+            return res.status(404).json({ success: false, message: "Product not found." });
         }
-        cartData[itemId][size] = (cartData[itemId][size] || 0) + 1;
 
-        userData.cartData = cartData;
-        await userData.save();
+        // Find or create a cart for the user
+        let cart = await Cart.findOne({ userId });
 
-        res.json({ success: true, message: "Added To Cart" });
+        if (!cart) {
+            cart = new Cart({ userId, items: [] });
+        }
+
+        const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId && item.color === color);
+
+        if (itemIndex > -1) {
+            cart.items[itemIndex].quantity += 1;
+        } else {
+            cart.items.push({ productId, color, quantity: 1 });
+        }
+
+        await cart.save();
+        res.json({ success: true, message: "Added to Cart" });
+
     } catch (error) {
         console.error("Error adding to cart:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -32,25 +46,28 @@ const addToCart = async (req, res) => {
 // Update user cart
 const updateCart = async (req, res) => {
     try {
-        const { userId, itemId, size, quantity } = req.body;
+        const { userId, productId, color, quantity } = req.body;
 
-        const userData = await userModel.findById(userId);
-        if (!userData) {
-            return res.status(404).json({ success: false, message: "User not found." });
+        const cart = await Cart.findOne({ userId });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart not found." });
         }
 
-        const cartData = userData.cartData;
+        const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId && item.color === color);
 
-        if (cartData[itemId]) {
-            cartData[itemId][size] = quantity;
+        if (itemIndex > -1) {
+            cart.items[itemIndex].quantity = quantity;
+            if (quantity <= 0) {
+                // Remove item if quantity is 0 or less
+                cart.items.splice(itemIndex, 1);
+            }
+            await cart.save();
         } else {
             return res.status(404).json({ success: false, message: "Item not found in cart." });
         }
 
-        userData.cartData = cartData;
-        await userData.save();
-
         res.json({ success: true, message: "Cart Updated" });
+
     } catch (error) {
         console.error("Error updating cart:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -62,14 +79,13 @@ const getUserCart = async (req, res) => {
     try {
         const { userId } = req.body;
 
-        const userData = await userModel.findById(userId);
-        if (!userData) {
-            return res.status(404).json({ success: false, message: "User not found." });
+        const cart = await Cart.findOne({ userId }).populate('items.productId'); // Adjusted populate option
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart not found." });
         }
 
-        const cartData = userData.cartData || {};
+        res.json({ success: true, cartData: cart.items });
 
-        res.json({ success: true, cartData });
     } catch (error) {
         console.error("Error retrieving user cart:", error);
         res.status(500).json({ success: false, message: error.message });
