@@ -1,0 +1,141 @@
+// Users Collection
+{
+  "_id": ObjectId,
+  "username": String,
+  "email": String,
+  "password": String, // hashed
+  "role": {
+    "type": String, // "customer", "admin"
+    "permissions": [String]
+  },
+  "profile": {
+    "firstName": String,
+    "lastName": String,
+    "avatar": String,
+    "phone": String,
+    "birthdate": Date
+  },
+  "addresses": [{
+    "_id": ObjectId,
+    "type": String, // "billing", "shipping"
+    "street": String,
+    "district": String,
+    "province": String,
+    "postcode": String,
+    "isDefault": Boolean //default or not
+  }]
+}
+
+// Products Collection
+{
+  "_id": ObjectId,
+  "name": String,
+  "description": String,
+  "category": String,
+  "pricing": String,
+  "stock": {
+    "total": Number,
+    "status": String // "in_stock", "out_of_stock"
+  },
+  "images": string, // URLs or paths,
+  "color": [string],
+  "stock": Number,
+  "metadata": {
+    "brand": String,
+    "weight": Number,
+    "dimensions": {
+      "width": Number,
+      "height": Number,
+      "length": Number
+    }
+  }
+}
+
+// Orders Collection
+{
+  "_id": ObjectId,
+  "user": {
+    "user_id": ObjectId,
+    "useremail": String,
+    "username": String
+  },
+  "items": [{
+    "product": {
+      "product_id": ObjectId,
+      "productname": String,
+      "productprice": Number
+    },
+    "variant": {
+      "size": String,
+      "color": String
+    },
+    "quantity": Number,
+    "subtotal": Number
+  }],
+  "shipping": {
+    "method": String,
+    "address": {
+      "street": String,
+      "district": String,
+      "province": String,
+      "postcode": String
+    },
+    "tracking": {
+      "number": String,
+      "carrier": String,
+      "status": String
+    }
+  },
+  "payment": {
+    "method": String, // "credit_card", "bank_transfer"
+    "status": String, // "pending", "paid", "failed"
+    "total": Number,
+    "currency": String,
+    "transactionId": String
+  },
+  "status": {
+    "current": String, // "created", "processing", "shipped", "delivered", "cancelled"
+    "history": [{
+      "state": String,
+      "timestamp": Date
+    }]
+  }
+}
+
+// Reviews Collection
+{
+  "_id": ObjectId,
+  "product": {
+    "_id": ObjectId,
+    "name": String
+  },
+  "user": {
+    "_id": ObjectId,
+    "name": String
+  },
+  "rating": Number, // 1-5
+  "comment": String,
+  "images": [String],
+  "createdAt": Date
+}
+
+// Promotions Collection
+{
+  "_id": ObjectId,
+  "code": String,
+  "type": String, // "percentage", "fixed_amount"
+  "value": Number,
+  "applies_to": {
+    "products": [ObjectId],
+    "categories": [String]
+  },
+  "validity": {
+    "start": Date,
+    "end": Date
+  },
+  "status": {
+    "isActive": Boolean,
+    "usageLimit": Number,
+    "currentUsage": Number
+  }
+}
