@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import connectDB from "./config/mongodb.js";
-//import connectCloudinary from "./config/cloudinary.js";
+import connectCloudinary from "./config/cloudinary.js";
 import productRoutes from "./routes/productRoutes.js";
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -12,11 +12,20 @@ import cartRoutes from './routes/cartRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
-const allowedOrigins = process.env.ALLOWED_ORIGIN ? process.env.ALLOWED_ORIGIN.split(",") : [];
+app.use(cors());
+
+const allowedOrigins = [
+    "http://localhost:5174",
+    "http://localhost:5173",
+    "https://orbit-rex-living.vercel.app/",
+];
+
+// Configure CORS
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error("Not allowed by CORS"));
@@ -28,6 +37,7 @@ app.use(
 );
 
 connectDB();
+connectCloudinary()
 
 app.use(express.json());
 
