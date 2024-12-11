@@ -1,34 +1,42 @@
 // productController.js
 import Product from '../models/productModel.js';
 import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
 
 export const createProduct = async (req, res) => {
     try {
-        const { name, description, price, category } = req.body;
-        const imageFiles = req.files; // Assuming multer or similar middleware is used
+        const { name, description, pricing, category, stock, color, metadata } = req.body;
+        const imageFiles = req.files;
 
-        // Ensure images are present
         if (!imageFiles || imageFiles.length === 0) {
             return res.status(400).json({ success: false, message: "No images uploaded" });
         }
 
-        // Upload each image to Cloudinary
-        const imageUrls = await Promise.all(imageFiles.map(async (file) => {
-            const result = await cloudinary.uploader.upload(file.path, {
-                resource_type: "image"
-            });
-            return result.secure_url;
-        }));
+        const imageUrls = [];
+        for (const file of imageFiles) {
+            try {
+                const result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
+                fs.unlinkSync(file.path);
+                imageUrls.push(result.secure_url);
+            } catch (error) {
+                console.error("Image upload failed:", error);
+                return res.status(500).json({ success: false, message: "Image upload failed" });
+            }
+        }
 
-        // Create product instance with image URLs
         const productData = {
-            ...req.body, // Include all other product data
-            images: imageUrls // Assuming your product model has an 'images' field
+            name,
+            description,
+            pricing,
+            category,
+            stock,
+            color,
+            metadata,
+            images: imageUrls,
         };
 
-        const newProduct = new Product(productData);
-        await newProduct.save();
-
+        // Save product to the database
+        const newProduct = await Product.create(productData);
         res.status(201).json({ success: true, product: newProduct });
     } catch (error) {
         console.error("Error creating product:", error);

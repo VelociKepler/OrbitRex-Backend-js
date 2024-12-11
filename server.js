@@ -12,10 +12,23 @@ import cartRoutes from './routes/cartRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
+const allowedOrigins = process.env.ALLOWED_ORIGIN ? process.env.ALLOWED_ORIGIN.split(",") : [];
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
+    })
+);
+
 connectDB();
 
-// Middleware
-app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {

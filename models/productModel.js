@@ -9,7 +9,7 @@ const productSchema = new mongoose.Schema({
         total: Number,
         status: String, // "in_stock", "out_of_stock"
     },
-    images: String,
+    images: { type: [String] },
     color: [String],
     metadata: {
         brand: String,
