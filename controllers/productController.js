@@ -6,21 +6,35 @@ import fs from 'fs';
 export const createProduct = async (req, res) => {
     try {
         const { name, description, pricing, category, stock, color, metadata } = req.body;
+        const { images: bodyImages } = req.body;
         const imageFiles = req.files;
 
-        if (!imageFiles || imageFiles.length === 0) {
-            return res.status(400).json({ success: false, message: "No images uploaded" });
+        if (!bodyImages && (!imageFiles || imageFiles.length === 0)) {
+            return res.status(400).json({ success: false, message: "No images provided" });
         }
 
         const imageUrls = [];
-        for (const file of imageFiles) {
+
+        if (bodyImages) {
             try {
-                const result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
-                fs.unlinkSync(file.path);
-                imageUrls.push(result.secure_url);
+                const parsedBodyImages = Array.isArray(bodyImages) ? bodyImages : [bodyImages];
+                imageUrls.push(...parsedBodyImages);
             } catch (error) {
-                console.error("Image upload failed:", error);
-                return res.status(500).json({ success: false, message: "Image upload failed" });
+                console.error("Error processing body images:", error);
+                return res.status(400).json({ success: false, message: "Invalid images in request body" });
+            }
+        }
+
+        if (imageFiles && imageFiles.length > 0) {
+            for (const file of imageFiles) {
+                try {
+                    const result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
+                    fs.unlinkSync(file.path);
+                    imageUrls.push(result.secure_url);
+                } catch (error) {
+                    console.error("Image upload failed:", error);
+                    return res.status(500).json({ success: false, message: "Image upload failed" });
+                }
             }
         }
 
