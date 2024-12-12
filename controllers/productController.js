@@ -61,7 +61,13 @@ export const createProduct = async (req, res) => {
 // Get all products
 export const getProducts = async (req, res) => {
     try {
-        const products = await Product.find({});
+        const { search } = req.query;
+
+        const query = search
+            ? { name: { $regex: search, $options: 'i' } }
+            : {};
+
+        const products = await Product.find(query);
         res.status(200).json({ success: true, products });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

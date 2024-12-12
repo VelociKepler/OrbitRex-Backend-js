@@ -5,7 +5,8 @@ import productModel from "../models/productModel.js";
 // Add products to user cart
 const addToCart = async (req, res) => {
     try {
-        const { userId, productId, color } = req.body; // Adjusted from itemId to productId
+        const { productId, color } = req.body; // Adjusted from itemId to productId
+        const userId = req.user.id;
 
         // Validate user
         const userExists = await userModel.exists({ _id: userId });
@@ -20,7 +21,7 @@ const addToCart = async (req, res) => {
         }
 
         // Find or create a cart for the user
-        let cart = await Cart.findOne({ userId });
+        let cart = await Cart.findOne({ userId: req.user.id });
 
         if (!cart) {
             cart = new Cart({ userId, items: [] });
@@ -46,9 +47,10 @@ const addToCart = async (req, res) => {
 // Update user cart
 const updateCart = async (req, res) => {
     try {
-        const { userId, productId, color, quantity } = req.body;
+        const { productId, color, quantity } = req.body;
+        const userId = req.user.id;
 
-        const cart = await Cart.findOne({ userId });
+        const cart = await Cart.findOne({ userId: req.user.id });
         if (!cart) {
             return res.status(404).json({ success: false, message: "Cart not found." });
         }
@@ -77,9 +79,9 @@ const updateCart = async (req, res) => {
 // Get user cart data
 const getUserCart = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user.id;
 
-        const cart = await Cart.findOne({ userId }).populate('items.productId'); // Adjusted populate option
+        const cart = await Cart.findOne({ userId: req.user.id }).populate('items.productId'); // Adjusted populate option
         if (!cart) {
             return res.status(404).json({ success: false, message: "Cart not found." });
         }

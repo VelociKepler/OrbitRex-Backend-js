@@ -1,13 +1,27 @@
-import express from 'express';
-import { placeOrderStripe, verifyStripe, allOrders, userOrders, updateStatus } from '../controllers/orderController.js';
-import userAuth from '../middleware/userAuth.js';
+import express from "express";
+import {
+    placeOrderStripe,
+    allOrders,
+    userOrders,
+    updateStatus,
+    verifyStripe,
+} from "../controllers/orderController.js";
+import adminAuth from "../middleware/adminAuth.js";
+import userAuth from "../middleware/userAuth.js";
 
 const orderRouter = express.Router();
 
-orderRouter.post('/place-order', userAuth, placeOrderStripe);
-orderRouter.post('/verify-stripe', userAuth, verifyStripe);
-orderRouter.get('/all-orders', userAuth, allOrders);
-orderRouter.post('/user-orders', userAuth, userOrders);
-orderRouter.put('/update-status', userAuth, updateStatus);
+// Admin Routes
+orderRouter.post("/list", adminAuth, allOrders); // Get all orders (Admin access only)
+orderRouter.post("/status", adminAuth, updateStatus); // Update order status (Admin access only)
+
+// User Payment
+orderRouter.post("/stripe", userAuth, placeOrderStripe); // Place an order with Stripe
+
+// User Routes
+orderRouter.post("/userorders", userAuth, userOrders); // Fetch authenticated user's orders
+
+// Payment Verification
+orderRouter.post("/verifyStripe", userAuth, verifyStripe); // Verify Stripe payment status
 
 export default orderRouter;
