@@ -17,6 +17,7 @@ const allowedOrigins = [
     "http://localhost:5174",
     "http://localhost:5173",
     "https://orbit-rex-living.vercel.app/",
+    "https://ordbit-rexadmin-page.vercel.app/"
 ];
 
 // Configure CORS
