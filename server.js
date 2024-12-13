@@ -13,30 +13,36 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(cors());
 
-const allowedOrigins = [
-    "http://localhost:5174",
-    "http://localhost:5173",
-    "https://orbit-rex-living.vercel.app/",
-    "https://ordbit-rexadmin-page.vercel.app/",
-    "https://ordbit-rexadmin-page-31ga4muhi-thiramet-phuthongs-projects.vercel.app/",
-    "https://ordbit-rexadmin-page-31ga4muhi-thiramet-phuthongs-projects.vercel.app"
-];
+// const allowedOrigins = [
+//     "http://localhost:5174",
+//     "http://localhost:5173",
+//     "https://orbit-rex-living.vercel.app/",
+//     "https://ordbit-rexadmin-page.vercel.app/",
+//     "https://ordbit-rexadmin-page-31ga4muhi-thiramet-phuthongs-projects.vercel.app/",
+//     "https://ordbit-rexadmin-page-31ga4muhi-thiramet-phuthongs-projects.vercel.app"
+// ];
+//
+// // Configure CORS
+// app.use(
+//     cors({
+//         origin: (origin, callback) => {
+//             if (!origin) return callback(null, true);
+//             if (allowedOrigins.includes(origin)) {
+//                 callback(null, true);
+//             } else {
+//                 callback(new Error("Not allowed by CORS"));
+//             }
+//         },
+//         methods: ["GET", "POST", "PUT", "DELETE"],
+//         credentials: true,
+//     })
+// );
 
-// Configure CORS
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-    })
-);
+app.use(cors({
+    origin: '*', // This will allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+}));
 
 connectDB();
 
