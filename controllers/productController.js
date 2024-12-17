@@ -58,14 +58,34 @@ export const createProduct = async (req, res) => {
     }
 };
 
+export const getProductsByCategory = async (req, res) => {
+    try {
+        const { category } = req.query;
+
+        const validCategories = ['sofa', 'chair', 'table'];
+        if (!validCategories.includes(category)) {
+            return res.status(400).json({ success: false, message: "Invalid category." });
+        }
+
+        const products = await productModel.find({ category });
+        res.json({ success: true, products });
+
+    } catch (error) {
+        console.error("Error retrieving products by category:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
 // Get all products
 export const getProducts = async (req, res) => {
     try {
-        const { search } = req.query;
+        const { search, category } = req.query;
 
-        const query = search
-            ? { name: { $regex: search, $options: 'i' } }
-            : {};
+        const query = {
+            ...(search && { name: { $regex: search, $options: 'i' } }),
+            ...(category && { category }) 
+        };
 
         const products = await Product.find(query);
         res.status(200).json({ success: true, products });

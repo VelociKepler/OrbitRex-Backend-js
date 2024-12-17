@@ -6,7 +6,7 @@ import {
     getProductById,
     updateProduct,
     deleteProduct,
-} from '../controllers/productController.js'; // Ensure the path is correct
+} from '../controllers/productController.js';
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
 import validateProduct from "../middleware/validateProduct.js";
